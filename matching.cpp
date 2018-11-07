@@ -103,16 +103,16 @@ int BellmanFord(void)
 	struct VERTEX *tempvert;
 	struct EDGE *tempedge;
 
-  // all distance of pad should be infinite
+ 	 // all distance of pad should be infinite
 	for (tempvert = headpad; tempvert != NULL; tempvert = tempvert->next){
 		tempvert->distance = INFINITY;}
     
 	source->distance = 0;
 	sink->distance = INFINITY;
 
-  //path initialization
+ 	 //path initialization
 	headpath = NULL;
-  // BellmanFord Algorithm 여기서부터 다시
+ 	 // BellmanFord Algorithm 여기서부터 다시
 	while (relaxed)
 	{
 		relaxed = 0;
@@ -127,12 +127,11 @@ int BellmanFord(void)
 				}
 			}
 		}
-
-		if (sink->distance == INFINITY)
-			return FALSE;
-		else
-			return TRUE;
 	}
+	if (sink->distance == INFINITY)
+		return FALSE;
+	else
+		return TRUE;
 }
 
 void vPrintStatus(void)
@@ -159,7 +158,8 @@ void FordFulkerson(void)
 	struct PATH *newpath;
 	struct VERTEX *tempvert;
 	struct EDGE *tempedge, *tempedge2;
-
+	
+	// Find all source to sink path until there's no path in residual network
 	while (BellmanFord())
 	{
 		for (tempedge = sink->predecessor; tempedge != NULL; tempedge = tempedge->prev->predecessor)
@@ -178,7 +178,8 @@ void FordFulkerson(void)
 			}
 		}
 	}
-
+	
+	// matching(flow==1)
 	for (tempvert = headpad; tempvert != NULL; tempvert = tempvert->next)
 	{
 		for (tempedge = tempvert->out; tempedge != NULL; tempedge = tempedge->next)
@@ -230,6 +231,7 @@ void vPrintMatching(void)
 	fclose(fp);
 }
 
+//read logic file and build graph
 void BuildGraph(char *filename)
 {
 	FILE *fp;
@@ -262,7 +264,8 @@ void BuildGraph(char *filename)
 	}
 
 	headpad = headpin;
-
+	
+	// make vertices and sorting by name
 	for (i = 0; i < iPad; i++)
 	{
 		newvert = GetVertex();
@@ -272,7 +275,8 @@ void BuildGraph(char *filename)
 		newvert->next = headpin;
 		headpin = newvert;
 	}
-
+	
+	// connect edges
 	tempvert = headpad;
 	while (Read_a_word(instring, fp) == TRUE)
 	{
@@ -302,7 +306,8 @@ void BuildGraph(char *filename)
 				newedge->capacity = 1;
 				newedge->vertex = tempvert2;
 				newedge->prev = tempvert;
-
+				//newedge->next = tempvert->out;
+				
 				if (tempvert->out == NULL)
 					tempvert->out = newedge;
 				else
@@ -315,7 +320,7 @@ void BuildGraph(char *filename)
 					newedge->cost = -cost;
 				else
 					newedge->cost = INFINITY;
-					newedge->flow = 0;
+				newedge->flow = 0;
 				newedge->capacity = 0;
 				newedge->vertex = tempvert;
 				newedge->prev = tempvert2;
@@ -328,7 +333,7 @@ void BuildGraph(char *filename)
 		}
 	}
 	fclose(fp);
-}
+} //input
 
 void vCreateFlowNetwork(void)
 {
@@ -354,7 +359,8 @@ void vCreateFlowNetwork(void)
 		tempedge->next = source->out;
 		source->out = tempedge;
 	}
-
+	// build graph(pin->sink)
+	// capacity=1, cost=1, directional
 	for (tempvert = headpin; tempvert != headpin && tempvert != NULL; tempvert = tempvert->next)
 	{
 		tempedge = GetEdge();
@@ -372,6 +378,7 @@ void vCreateFlowNetwork(void)
 			break;
 		}
 	}
+	// after func, there's a connected graph(source->sink)
 }
 
 struct VERTEX *GetVertex(void)
@@ -446,7 +453,7 @@ struct EDGE *Getedge(void)
 
 	return(tempedge);
 }
-
+// Read by word
 inline int Read_a_word(char *str, FILE *fp)
 {
 	int k;
@@ -473,7 +480,7 @@ inline int Read_a_word(char *str, FILE *fp)
 			break;
 		k++;
 
-			str[k] = ch;
+		str[k] = ch;
 	}
 	k++;
 
